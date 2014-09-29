@@ -38,15 +38,10 @@ import java.util.List;
  */
 public class WebUtils extends FragmentActivity {
     private static final String DEBUG_TAG = "HttpExample";
-    private String url;
     private Context mapContext;
     private GoogleMap mMap;
-    private String downURL;
-    private String upURL;
 
-    public WebUtils(String downURL, String upURL, Context context, GoogleMap map) {
-        this.downURL = downURL;
-        this.upURL = upURL;
+    public WebUtils(Context context, GoogleMap map) {
         mapContext = context;
         mMap = map;
     }
@@ -123,21 +118,40 @@ public class WebUtils extends FragmentActivity {
      */
 
     private void uploadLocation(Location location) {
+
+
+        MapsActivity context = (MapsActivity) mapContext;
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("deviceID", context.getDeviceID()));
+        params.add(new BasicNameValuePair("name", context.getName()));
+        params.add(new BasicNameValuePair("longitude", Double.toString(location.getLongitude())));
+        params.add(new BasicNameValuePair("latitude", Double.toString(location.getLatitude())));
+
+        postToServer(params);
+
+
+
+
+    }
+
+    /**
+     *
+     * @param params Parameters to send to server
+     * @return
+     */
+
+    private boolean postToServer(List<NameValuePair> params) {
         try {
-            URL url = new URL(upURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            URL u = new URL(MapsActivity.UP_URL);
+            HttpURLConnection conn = (HttpURLConnection) u.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
+            conn.connect();
 
-            MapsActivity context = (MapsActivity) mapContext;
-
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("deviceID", context.getDeviceID()));
-            params.add(new BasicNameValuePair("name", context.getName()));
-            params.add(new BasicNameValuePair("longitude", Double.toString(location.getLongitude())));
-            params.add(new BasicNameValuePair("latitude", Double.toString(location.getLatitude())));
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
@@ -147,15 +161,16 @@ public class WebUtils extends FragmentActivity {
             writer.close();
             os.close();
 
-            conn.connect();
+
             int response = conn.getResponseCode();
-            Log.d(DEBUG_TAG, "The response is: " + response);
             conn.disconnect();
+            return true;
 
 
         }
         catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
     }
@@ -187,7 +202,7 @@ public class WebUtils extends FragmentActivity {
         // Only display the first 500 characters of the retrieved
         // web page content.
         try {
-            URL url = new URL(downURL);
+            URL url = new URL(MapsActivity.DOWN_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000 /* milliseconds */);
             conn.setConnectTimeout(15000 /* milliseconds */);

@@ -53,8 +53,8 @@ public class MapsActivity extends FragmentActivity implements
 
     private final static int
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-    private final static String DOWN_URL = "http://androidapp.torpforsikring.dk/get.php";
-    private final static String UP_URL = "http://androidapp.torpforsikring.dk/insert.php";
+    public final static String DOWN_URL = "http://androidapp.torpforsikring.dk/get.php";
+    public final static String UP_URL = "http://androidapp.torpforsikring.dk/insert.php";
     private String deviceID;
 
     private WebUtils webUtils;
@@ -71,7 +71,7 @@ public class MapsActivity extends FragmentActivity implements
         setContentView(R.layout.activity_maps);
         startGPS();
         setUpMapIfNeeded();
-        webUtils = new WebUtils(DOWN_URL,UP_URL, this, mMap);
+        webUtils = new WebUtils(this, mMap);
         startFetchingHandler();
     }
 
