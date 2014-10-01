@@ -55,6 +55,7 @@ public class MapsActivity extends FragmentActivity implements
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     public final static String DOWN_URL = "http://androidapp.torpforsikring.dk/get.php";
     public final static String UP_URL = "http://androidapp.torpforsikring.dk/insert.php";
+    public final static String UP_URL_LIKE = "http://androidapp.torpforsikring.dk/getLike.php";
     private String deviceID;
 
     private WebUtils webUtils;
