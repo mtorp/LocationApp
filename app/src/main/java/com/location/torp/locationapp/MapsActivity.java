@@ -29,12 +29,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -90,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements
             case R.id.action_speech:
                 Toast.makeText(getApplicationContext(), "Opening BluetoothActivity", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, BluetoothActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -131,7 +136,7 @@ public class MapsActivity extends FragmentActivity implements
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
-            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            //mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         }
     }
 
@@ -157,6 +162,7 @@ public class MapsActivity extends FragmentActivity implements
         switch (requestCode) {
 
             case CONNECTION_FAILURE_RESOLUTION_REQUEST:
+
             /*
              * If the result code is Activity.RESULT_OK, try
              * to connect again
@@ -169,8 +175,19 @@ public class MapsActivity extends FragmentActivity implements
 
                         break;
                 }
+            case 1:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                    {
+                        List<NameValuePair> params = new ArrayList<NameValuePair>();
+                        params.add(new BasicNameValuePair("name", data.getStringExtra("name")));
+                        webUtils.startFetchLocationTaskWithParams(UP_URL_LIKE, params);
+                    }
+                }
 
         }
+
+
     }
 
     private boolean servicesConnected() {

@@ -26,7 +26,18 @@ public class BluetoothActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
+        startBlueTooth();
+    }
 
+
+
+    protected void onResume() {
+        super.onResume();
+        startBlueTooth();
+
+    }
+
+    private void startBlueTooth () {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(bluetoothAdapter == null) {
             Toast.makeText(getApplicationContext(), "Bluetooth not working", Toast.LENGTH_SHORT).show();
@@ -40,8 +51,6 @@ public class BluetoothActivity extends Activity {
         bluetoothAdapter.startDiscovery();
         registerReceiver(broadcastReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
 
-        arrayAdapter.add("Testname");
-        arrayAdapter.notifyDataSetChanged();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -50,6 +59,10 @@ public class BluetoothActivity extends Activity {
             {
                 String value = (String)adapter.getItemAtPosition(position);
                 Toast.makeText(getApplicationContext(), "Clicked: " + value, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                intent.putExtra("name", value);
+                setResult(Activity.RESULT_OK, intent);
+                finish();
             }
         });
     }
@@ -67,6 +80,7 @@ public class BluetoothActivity extends Activity {
 
         }
     };
+
 
     protected void onDestroy() {
         super.onDestroy();

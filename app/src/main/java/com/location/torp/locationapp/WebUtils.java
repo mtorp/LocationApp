@@ -1,12 +1,15 @@
 package com.location.torp.locationapp;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -128,12 +131,26 @@ public class WebUtils extends FragmentActivity {
             return downloadURlWithParams((String) params[0], (List<NameValuePair>) params[1]);
         }
 
+
+        /**
+         * Set focus on first object returned
+         *
+         * @param jsonObject
+         */
         protected void onPostExecute(JSONObject jsonObject) {
 
-            //TODO Implement me!
+            try {
+                JSONObject position = jsonObject.getJSONArray("Locations").getJSONObject(0);
+                LatLng latLng = new LatLng(position.getDouble("latitude"), position.getDouble("longitude"));
 
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                //mMap.animateCamera(CameraUpdateFactory.zoomTo(mMap.getMaxZoomLevel() - 10.0f));
 
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
 
@@ -166,7 +183,7 @@ public class WebUtils extends FragmentActivity {
      * @return
      */
 
-    private boolean postToServer(String urlParam, List<NameValuePair> params) {
+    private synchronized boolean postToServer(String urlParam, List<NameValuePair> params) {
         try {
 
             URL u = new URL(urlParam);
@@ -203,7 +220,7 @@ public class WebUtils extends FragmentActivity {
 
 
 
-    private JSONObject downloadUrl(String urlParam) throws IOException {
+    private synchronized JSONObject downloadUrl(String urlParam) throws IOException {
         InputStream is = null;
         // Only display the first 500 characters of the retrieved
         // web page content.
@@ -242,7 +259,7 @@ public class WebUtils extends FragmentActivity {
         return null;
     }
 
-    private JSONObject downloadURlWithParams(String urlParam, List<NameValuePair> params) {
+    private synchronized JSONObject downloadURlWithParams(String urlParam, List<NameValuePair> params) {
         InputStream is = null;
         try {
 
