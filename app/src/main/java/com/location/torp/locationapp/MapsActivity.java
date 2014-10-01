@@ -17,6 +17,7 @@ import android.provider.Settings.Secure;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -79,6 +80,20 @@ public class MapsActivity extends FragmentActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu1, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_speech:
+                Toast.makeText(getApplicationContext(), "Opening BluetoothActivity", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, BluetoothActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
