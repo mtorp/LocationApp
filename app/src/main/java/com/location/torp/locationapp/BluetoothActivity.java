@@ -10,26 +10,22 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-
 public class BluetoothActivity extends Activity {
-
-
 
     private BluetoothAdapter bluetoothAdapter;
     private ListView listView;
     private ArrayAdapter<String> arrayAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
-
-
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(bluetoothAdapter == null) {
@@ -46,6 +42,16 @@ public class BluetoothActivity extends Activity {
 
         arrayAdapter.add("Testname");
         arrayAdapter.notifyDataSetChanged();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position, long arg3)
+            {
+                String value = (String)adapter.getItemAtPosition(position);
+                Toast.makeText(getApplicationContext(), "Clicked: " + value, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -55,14 +61,12 @@ public class BluetoothActivity extends Activity {
 
             if(BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                arrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                arrayAdapter.add(device.getName());
                 arrayAdapter.notifyDataSetChanged();
             }
 
         }
     };
-
-
 
     protected void onDestroy() {
         super.onDestroy();
