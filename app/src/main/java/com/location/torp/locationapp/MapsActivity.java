@@ -293,7 +293,7 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        webUtils.startPostLocationTask(location);
+        webUtils.startPostLocationTask(UP_URL, location);
 
     }
 
@@ -413,7 +413,7 @@ public class MapsActivity extends FragmentActivity implements
                     handler.post(new Runnable() {
                         public void run() {
                             try {
-                                webUtils.startFetchLocationTask();
+                                webUtils.startFetchLocationTask(DOWN_URL);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

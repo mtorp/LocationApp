@@ -32,6 +32,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Attributes;
 
 /**
  * Created by torp on 20/09/14.
@@ -47,22 +48,26 @@ public class WebUtils extends FragmentActivity {
     }
 
 
-    public void startFetchLocationTask() {
-        new FetchLocationsTask().execute();
+    public void startFetchLocationTask(String url) {
+        new FetchLocationsTask().execute(url);
     }
 
-    public void startPostLocationTask(Location location) {
-        new PostLocationTask().execute(location);
+    public void startPostLocationTask(String url, Location location) {
+        new PostLocationTask().execute(url, location);
+    }
+
+    public void startFetchLocationTaskWithParams(String url, List<NameValuePair> params) {
+        new FetchLocationTaskWithParams().execute(url, params);
     }
 
 
-    private class FetchLocationsTask extends AsyncTask<Void, Void, JSONObject> {
+    private class FetchLocationsTask extends AsyncTask<String, Void, JSONObject> {
         @Override
-        protected JSONObject doInBackground(Void... params) {
+        protected JSONObject doInBackground(String... params) {
 
             // params comes from the execute() call: params[0] is the url.
             try {
-                return downloadUrl();
+                return downloadUrl(params[0]);
             } catch (IOException e) {
                 return null;
             }
@@ -100,14 +105,34 @@ public class WebUtils extends FragmentActivity {
 
     }
 
-    private class PostLocationTask extends AsyncTask <Location, Void, Void> {
+    private class PostLocationTask extends AsyncTask <Object, Void, Void> {
 
-
+        /**
+         *
+         * @param params
+         * First parameter is the url for which the location needs to be uploaded
+         * Second parameter is the location to upload
+         * @return
+         */
         @Override
-        protected Void doInBackground(Location... locations) {
+        protected Void doInBackground(Object... params) {
             //params, should be location to upload
-            uploadLocation(locations[0]);
+            uploadLocation((String) params[0], (Location) params[1]);
             return null;
+        }
+    }
+
+    private class FetchLocationTaskWithParams extends AsyncTask<Object, Void, JSONObject> {
+        @Override
+        protected JSONObject doInBackground(Object... params) {
+            return downloadURlWithParams((String) params[0], (List<NameValuePair>) params[1]);
+        }
+
+        protected void onPostExecute(JSONObject jsonObject) {
+
+            //TODO Implement me!
+
+
         }
     }
 
@@ -117,7 +142,7 @@ public class WebUtils extends FragmentActivity {
      *  Method to upload a provided to location to the database
      */
 
-    private void uploadLocation(Location location) {
+    private void uploadLocation(String urlParam, Location location) {
 
 
         MapsActivity context = (MapsActivity) mapContext;
@@ -128,7 +153,7 @@ public class WebUtils extends FragmentActivity {
         params.add(new BasicNameValuePair("longitude", Double.toString(location.getLongitude())));
         params.add(new BasicNameValuePair("latitude", Double.toString(location.getLatitude())));
 
-        postToServer(params);
+        postToServer(urlParam, params);
 
 
 
@@ -141,10 +166,10 @@ public class WebUtils extends FragmentActivity {
      * @return
      */
 
-    private boolean postToServer(List<NameValuePair> params) {
+    private boolean postToServer(String urlParam, List<NameValuePair> params) {
         try {
 
-            URL u = new URL(MapsActivity.UP_URL);
+            URL u = new URL(urlParam);
             HttpURLConnection conn = (HttpURLConnection) u.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000 /* milliseconds */);
@@ -176,33 +201,14 @@ public class WebUtils extends FragmentActivity {
     }
 
 
-    //Code from StackOverflow
-    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
-    {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
 
-        for (NameValuePair pair : params)
-        {
-            if (first)
-                first = false;
-            else
-                result.append("&");
 
-            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
-        }
-
-        return result.toString();
-    }
-
-    private JSONObject downloadUrl() throws IOException {
+    private JSONObject downloadUrl(String urlParam) throws IOException {
         InputStream is = null;
         // Only display the first 500 characters of the retrieved
         // web page content.
         try {
-            URL url = new URL(MapsActivity.DOWN_URL);
+            URL url = new URL(urlParam);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000 /* milliseconds */);
             conn.setConnectTimeout(15000 /* milliseconds */);
@@ -211,7 +217,6 @@ public class WebUtils extends FragmentActivity {
             // Starts the query
             conn.connect();
             int response = conn.getResponseCode();
-            Log.d(DEBUG_TAG, "The response is: " + response);
             is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 8);
             StringBuilder sb = new StringBuilder();
@@ -237,5 +242,71 @@ public class WebUtils extends FragmentActivity {
         return null;
     }
 
+    private JSONObject downloadURlWithParams(String urlParam, List<NameValuePair> params) {
+        InputStream is = null;
+        try {
+
+            URL u = new URL(urlParam);
+            HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(15000 /* milliseconds */);
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.connect();
+
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(getQuery(params));
+            writer.flush();
+            writer.close();
+            os.close();
+
+
+            is = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 8);
+            StringBuilder sb = new StringBuilder();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+
+            String result = sb.toString();
+            result = "{Locations:"+result+"}";
+            conn.disconnect();
+            return new JSONObject(result);
+
+
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    //Code from StackOverflow
+    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
+    {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        for (NameValuePair pair : params)
+        {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
+    }
 
 }
