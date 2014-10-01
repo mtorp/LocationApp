@@ -61,6 +61,8 @@ public class WebUtils extends FragmentActivity {
     }
 
 
+
+
     private class FetchLocationsTask extends AsyncTask<Void, Void, JSONObject> {
         @Override
         protected JSONObject doInBackground(Void... params) {
@@ -73,34 +75,34 @@ public class WebUtils extends FragmentActivity {
             }
         }
 
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
+    @Override
+    protected void onPostExecute(JSONObject jsonObject) {
 
-            if (mMap != null && jsonObject != null) {
-                try {
-                    JSONArray jsonArray = jsonObject.getJSONArray("Locations");
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject obj = jsonArray.getJSONObject(i);
-                        double latitude = obj.getDouble("latitude");
-                        double longitude = obj.getDouble("longitude");
-                        String title = obj.getString("name");
-                        float color =  (new BigInteger(obj.getString("deviceID"), 16).floatValue()%360);
-                        MarkerOptions m = new MarkerOptions();
-                        m.title(title);
-                        m.icon(BitmapDescriptorFactory.defaultMarker(color));
-                        m.position(new LatLng(latitude, longitude));
-                        mMap.addMarker(m);
+        if (mMap != null && jsonObject != null) {
+            try {
+                JSONArray jsonArray = jsonObject.getJSONArray("Locations");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject obj = jsonArray.getJSONObject(i);
+                    double latitude = obj.getDouble("latitude");
+                    double longitude = obj.getDouble("longitude");
+                    String title = obj.getString("name");
+                    float color =  (new BigInteger(obj.getString("deviceID"), 16).floatValue()%360);
+                    MarkerOptions m = new MarkerOptions();
+                    m.title(title);
+                    m.icon(BitmapDescriptorFactory.defaultMarker(color));
+                    m.position(new LatLng(latitude, longitude));
+                    mMap.addMarker(m);
 
-                    }
-                    Toast.makeText(mapContext, "Locations added", Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+                Toast.makeText(mapContext, "Locations added", Toast.LENGTH_SHORT).show();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
-
         }
+
+
+    }
 
 
     }
@@ -138,14 +140,14 @@ public class WebUtils extends FragmentActivity {
             params.add(new BasicNameValuePair("name", context.getName()));
             params.add(new BasicNameValuePair("longitude", Double.toString(location.getLongitude())));
             params.add(new BasicNameValuePair("latitude", Double.toString(location.getLatitude())));
-
             OutputStream os = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(getQuery(params));
+
             writer.flush();
             writer.close();
             os.close();
+
 
             conn.connect();
             int response = conn.getResponseCode();
@@ -221,6 +223,4 @@ public class WebUtils extends FragmentActivity {
         }
         return null;
     }
-
-
 }

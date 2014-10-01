@@ -89,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements
             case R.id.action_speech:
                 Toast.makeText(getApplicationContext(), "Opening BluetoothActivity", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, BluetoothActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -154,6 +154,10 @@ public class MapsActivity extends FragmentActivity implements
             int requestCode, int resultCode, Intent data) {
         // Decide what to do based on the original request code
         switch (requestCode) {
+
+            case 1:
+                Log.d("HttpBluetooth", "shit works");
+
 
             case CONNECTION_FAILURE_RESOLUTION_REQUEST:
             /*
@@ -327,6 +331,8 @@ public class MapsActivity extends FragmentActivity implements
 
     }
 
+
+
     // Define a DialogFragment that displays the error dialog
     public static class ErrorDialogFragment extends DialogFragment {
         // Global field to contain the error dialog
@@ -438,6 +444,7 @@ public class MapsActivity extends FragmentActivity implements
             };
             timer.schedule(doAsynchronousTask, 0, 60000); //execute in every 50000 ms
         }
+
 
 
 }

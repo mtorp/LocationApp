@@ -40,7 +40,7 @@ public class BluetoothActivity extends Activity {
         bluetoothAdapter.startDiscovery();
         registerReceiver(broadcastReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
 
-        arrayAdapter.add("Testname");
+        arrayAdapter.add("Joachim");
         arrayAdapter.notifyDataSetChanged();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -49,6 +49,8 @@ public class BluetoothActivity extends Activity {
             public void onItemClick(AdapterView<?> adapter, View v, int position, long arg3)
             {
                 String value = (String)adapter.getItemAtPosition(position);
+                new Bluetooth().postBluetoothName(value);
+
                 Toast.makeText(getApplicationContext(), "Clicked: " + value, Toast.LENGTH_SHORT).show();
             }
         });
