@@ -1,5 +1,7 @@
 package com.location.torp.locationapp;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -30,15 +32,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-/**
- * Created by JoachimSkov on 01/10/2014.
- */
 public class Bluetooth extends FragmentActivity  {
 
     private static final String DEBUG_TAG = "HttpBluetooth";
     private String bluetooth_URL = "http://androidapp.torpforsikring.dk/getLike.php";
-    private BluetoothListener bluetoothListener;
+    private Activity activity;
+
+    public Bluetooth(Activity activity){
+        this.activity = activity;
+    }
+
 
     public void postBluetoothName(String name) {
         new postBluetoothNameTask().execute(name);
@@ -53,14 +56,16 @@ public class Bluetooth extends FragmentActivity  {
 
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
-            Log.d(DEBUG_TAG, "did i get so far");
             if (jsonObject != null) {
                 try {
+                    Log.d(DEBUG_TAG, "did i get this far");
+
                     JSONArray jsonArray = jsonObject.getJSONArray("Locations");
-                    JSONObject obj = jsonArray.getJSONObject(1);
+                    JSONObject obj = jsonArray.getJSONObject(0);
                     double latitude = obj.getDouble("latitude");
                     double longitude = obj.getDouble("longitude");
                     String title = obj.getString("name");
+
                     Log.d(DEBUG_TAG, "name: " + title + " Latitude " + latitude + " longitude " + longitude);
 
                     returnToMapWithResult(title, latitude, longitude);
@@ -69,6 +74,8 @@ public class Bluetooth extends FragmentActivity  {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            } else {
+                Log.d(DEBUG_TAG, "jsonobject is null");
             }
         }
 
@@ -90,7 +97,7 @@ public class Bluetooth extends FragmentActivity  {
             conn.setDoOutput(true);
 
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("name", name));
+            params.add(new BasicNameValuePair("nameLike", name));
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -135,7 +142,13 @@ public class Bluetooth extends FragmentActivity  {
         returnIntent.putExtra("title", title);
         returnIntent.putExtra("latitude", latitude);
         returnIntent.putExtra("longitude", longitude);
-        setResult(RESULT_OK, returnIntent);
+
+        if(activity.getParent() == null) {
+            setResult(RESULT_OK, returnIntent);
+        } else {
+            activity.getParent().setResult(RESULT_OK, returnIntent);
+        }
+
         finish();
     }
 
