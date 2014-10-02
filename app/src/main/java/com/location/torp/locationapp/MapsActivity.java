@@ -180,7 +180,7 @@ public class MapsActivity extends FragmentActivity implements
                     case Activity.RESULT_OK:
                     {
                         List<NameValuePair> params = new ArrayList<NameValuePair>();
-                        params.add(new BasicNameValuePair("name", data.getStringExtra("name")));
+                        params.add(new BasicNameValuePair("nameLike", data.getStringExtra("name")));
                         webUtils.startFetchLocationTaskWithParams(UP_URL_LIKE, params);
                     }
                 }
