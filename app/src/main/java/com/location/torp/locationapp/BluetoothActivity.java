@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,11 +17,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class BluetoothActivity extends Activity {
 
     private BluetoothAdapter bluetoothAdapter;
     private ListView listView;
     private ArrayAdapter<String> arrayAdapter;
+    private MapsActivity mapsActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +70,7 @@ public class BluetoothActivity extends Activity {
                 Intent intent = new Intent();
                 intent.putExtra("name", value);
                 setResult(Activity.RESULT_OK, intent);
+
                 finish();
             }
         });
@@ -76,6 +85,11 @@ public class BluetoothActivity extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 arrayAdapter.add(device.getName());
                 arrayAdapter.notifyDataSetChanged();
+
+                List<NameValuePair> bluetoothQueryList = new ArrayList<NameValuePair>();
+                bluetoothQueryList.add(new BasicNameValuePair("id", device.getAddress()));
+                bluetoothQueryList.add(new BasicNameValuePair("name", device.getName()));
+                WebUtils.startPostParamsTask(MapsActivity.UP_URL_BLUETOOTH, bluetoothQueryList);
             }
 
         }

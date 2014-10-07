@@ -62,11 +62,13 @@ public class MapsActivity extends FragmentActivity implements
     public final static String DOWN_URL = "http://androidapp.torpforsikring.dk/get.php";
     public final static String UP_URL = "http://androidapp.torpforsikring.dk/insert.php";
     public final static String UP_URL_LIKE = "http://androidapp.torpforsikring.dk/getLike.php";
-    private String deviceID;
+    public final static String UP_URL_BLUETOOTH = "http://androidapp.torpforsikring.dk/insertBluetooth.php";
+
+
 
     private WebUtils webUtils;
     private String name;
-
+    private String deviceID;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -456,6 +458,10 @@ public class MapsActivity extends FragmentActivity implements
             };
             timer.schedule(doAsynchronousTask, 0, 60000); //execute in every 50000 ms
         }
+
+    public void startUploadTask(String url, List<NameValuePair> params) {
+        webUtils.startPostParamsTask(url, params);
+    }
 
 
 }

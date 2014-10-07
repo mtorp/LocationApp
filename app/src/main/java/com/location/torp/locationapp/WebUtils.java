@@ -59,8 +59,14 @@ public class WebUtils extends FragmentActivity {
         new PostLocationTask().execute(url, location);
     }
 
+
+
     public void startFetchLocationTaskWithParams(String url, List<NameValuePair> params) {
         new FetchLocationTaskWithParams().execute(url, params);
+    }
+
+    public static void startPostParamsTask(String url, List<NameValuePair> params) {
+        new PostParamsTask().execute(url, params);
     }
 
 
@@ -87,7 +93,7 @@ public class WebUtils extends FragmentActivity {
                         double latitude = obj.getDouble("latitude");
                         double longitude = obj.getDouble("longitude");
                         String title = obj.getString("name");
-                        float color =  (new BigInteger(obj.getString("deviceID"), 16).floatValue()%360);
+                        float color = (new BigInteger(obj.getString("deviceID"), 16).floatValue() % 360);
                         MarkerOptions m = new MarkerOptions();
                         m.title(title);
                         m.icon(BitmapDescriptorFactory.defaultMarker(color));
@@ -108,13 +114,11 @@ public class WebUtils extends FragmentActivity {
 
     }
 
-    private class PostLocationTask extends AsyncTask <Object, Void, Void> {
+    private class PostLocationTask extends AsyncTask<Object, Void, Void> {
 
         /**
-         *
-         * @param params
-         * First parameter is the url for which the location needs to be uploaded
-         * Second parameter is the location to upload
+         * @param params First parameter is the url for which the location needs to be uploaded
+         *               Second parameter is the location to upload
          * @return
          */
         @Override
@@ -123,6 +127,17 @@ public class WebUtils extends FragmentActivity {
             uploadLocation((String) params[0], (Location) params[1]);
             return null;
         }
+    }
+
+    private static class PostParamsTask extends AsyncTask<Object, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Object... params) {
+
+            uploadParams((String) params[0], (List<NameValuePair>) params[1]);
+            return null;
+        }
+
     }
 
     private class FetchLocationTaskWithParams extends AsyncTask<Object, Void, JSONObject> {
@@ -155,8 +170,8 @@ public class WebUtils extends FragmentActivity {
 
 
     /**
-     *  Code from StackOverflow
-     *  Method to upload a provided to location to the database
+     * Code from StackOverflow
+     * Method to upload a provided to location to the database
      */
 
     private void uploadLocation(String urlParam, Location location) {
@@ -173,12 +188,9 @@ public class WebUtils extends FragmentActivity {
         postToServer(urlParam, params);
 
 
-
-
     }
 
     /**
-     *
      * @param params Parameters to send to server
      * @return
      */
@@ -209,15 +221,12 @@ public class WebUtils extends FragmentActivity {
             return true;
 
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
 
     }
-
-
 
 
     private synchronized JSONObject downloadUrl(String urlParam) throws IOException {
@@ -244,7 +253,7 @@ public class WebUtils extends FragmentActivity {
             }
 
             String result = sb.toString();
-            result = "{Locations:"+result+"}";
+            result = "{Locations:" + result + "}";
             return new JSONObject(result);
 
             // Makes sure that the InputStream is closed after the app is
@@ -291,28 +300,53 @@ public class WebUtils extends FragmentActivity {
             }
 
             String result = sb.toString();
-            result = "{Locations:"+result+"}";
+            result = "{Locations:" + result + "}";
             conn.disconnect();
             return new JSONObject(result);
 
 
-
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
 
     }
 
+    private static void uploadParams(String urlParam, List<NameValuePair> params) {
+        try {
+            URL u = new URL(urlParam);
+            HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(15000 /* milliseconds */);
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.connect();
+
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(getQuery(params));
+            writer.flush();
+            writer.close();
+            os.close();
+
+
+            int response = conn.getResponseCode();
+            conn.disconnect();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     //Code from StackOverflow
-    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
-    {
+    private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
 
-        for (NameValuePair pair : params)
-        {
+        for (NameValuePair pair : params) {
             if (first)
                 first = false;
             else
@@ -325,5 +359,7 @@ public class WebUtils extends FragmentActivity {
 
         return result.toString();
     }
+
+
 
 }
