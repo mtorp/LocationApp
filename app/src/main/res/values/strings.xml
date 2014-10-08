@@ -57,5 +57,7 @@
     <string name="unknown_activity_request_code">        Received an unknown activity request code %1$d in onActivityResult.</string>
     <string name="title_activity_bluetooth">BluetoothActivity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_wifi">WifiActivity</string>
+    <string name="title_activity_notification">NotificationActivity</string>
 
 </resources>

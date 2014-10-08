@@ -100,9 +100,15 @@ public class MapsActivity extends FragmentActivity implements
 
             case R.id.action_wifi:
                 Toast.makeText(getApplicationContext(), "Opening WifiActivity", Toast.LENGTH_SHORT).show();
+                Intent wifiIntent = new Intent(this, WifiActivity.class);
+                startActivity(wifiIntent);
+                return true;
 
             case R.id.action_notifications:
                 Toast.makeText(getApplicationContext(), "Opening NotificationActivity", Toast.LENGTH_SHORT).show();
+                Intent notificationIntent = new Intent(this, WifiActivity.class);
+                startActivity(notificationIntent);
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
