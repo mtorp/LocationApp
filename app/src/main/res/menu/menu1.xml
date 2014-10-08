@@ -1,6 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/action_wifi"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_network_wifi"
+        android:title="wifi" />
+
+    <item android:id="@+id/action_notifications"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_labels"
+        android:title="notifications" />
+
     <item android:id="@+id/action_speech"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:icon="@drawable/ic_action_bluetooth"
         android:title="Speech"/>
+
 </menu>

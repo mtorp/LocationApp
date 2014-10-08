@@ -97,6 +97,13 @@ public class MapsActivity extends FragmentActivity implements
                 Intent intent = new Intent(this, BluetoothActivity.class);
                 startActivityForResult(intent, 1);
                 return true;
+
+            case R.id.action_wifi:
+                Toast.makeText(getApplicationContext(), "Opening WifiActivity", Toast.LENGTH_SHORT).show();
+
+            case R.id.action_notifications:
+                Toast.makeText(getApplicationContext(), "Opening NotificationActivity", Toast.LENGTH_SHORT).show();
+
             default:
                 return super.onOptionsItemSelected(item);
         }
