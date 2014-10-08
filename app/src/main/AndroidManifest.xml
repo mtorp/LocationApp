@@ -28,7 +28,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAd0ro3s35CIr36DICH6aSGwiqxZXfcnm0" />
+            android:value="AIzaSyBnWyDLSldsHINWz1oJEGUk-Cya9Cff9R8" />
     </application>
 
     <!-- Bluetooth permissions -->
