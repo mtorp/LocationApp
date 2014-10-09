@@ -66,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements
     public final static String DOWN_URL = "http://androidapp.torpforsikring.dk/get.php";
     public final static String UP_URL = "http://androidapp.torpforsikring.dk/insert.php";
     public final static String UP_URL_LIKE = "http://androidapp.torpforsikring.dk/getLike.php";
+    public final static String WIFI_UP = "http://androidapp.torpforsikring.dk/insertWifi.php";
     private String deviceID;
 
     private WebUtils webUtils;
@@ -478,19 +479,19 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     class WifiReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             List<ScanResult> scanResults = wifiManager.getScanResults();
 
             for (int i = 0; i < scanResults.size(); i++) {
+                List<NameValuePair> values = new ArrayList<NameValuePair>();
+                values.add(new BasicNameValuePair("deviceID", getDeviceID()));
+                values.add(new BasicNameValuePair("SSID", scanResults.get(i).SSID));
+                values.add(new BasicNameValuePair("BSSID", scanResults.get(i).BSSID));
+
                 Log.i("wifi", "Found wifi: SSID = " + scanResults.get(i).SSID + " BSSID = " + scanResults.get(i).BSSID);
-
+                WebUtils.startPostParamsTask(WIFI_UP, values);
             }
-
-
-
-            Toast.makeText(getApplicationContext(), "Found wifi named ", Toast.LENGTH_SHORT).show();
         }
     }
 }

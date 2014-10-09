@@ -29,8 +29,6 @@ public class BluetoothActivity extends Activity {
         startBlueTooth();
     }
 
-
-
     protected void onResume() {
         super.onResume();
         startBlueTooth();
@@ -77,10 +75,8 @@ public class BluetoothActivity extends Activity {
                 arrayAdapter.add(device.getName());
                 arrayAdapter.notifyDataSetChanged();
             }
-
         }
     };
-
 
     protected void onDestroy() {
         super.onDestroy();
