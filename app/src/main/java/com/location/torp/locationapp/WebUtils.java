@@ -35,6 +35,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.jar.Attributes;
 
 /**
@@ -59,14 +60,24 @@ public class WebUtils extends FragmentActivity {
         new PostLocationTask().execute(url, location);
     }
 
-
-
     public void startFetchLocationTaskWithParams(String url, List<NameValuePair> params) {
         new FetchLocationTaskWithParams().execute(url, params);
     }
 
+
     public static void startPostParamsTask(String url, List<NameValuePair> params) {
         new PostParamsTask().execute(url, params);
+    }
+
+    public static JSONObject startFetchParamsTask(String url, List<NameValuePair> params) {
+        try {
+            return new FetchParamsTask().execute(url, params).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -139,6 +150,19 @@ public class WebUtils extends FragmentActivity {
         }
 
     }
+
+
+    private static class FetchParamsTask extends AsyncTask<Object, Void, JSONObject>{
+
+
+        @Override
+        protected JSONObject doInBackground(Object... params) {
+            JSONObject result = downloadURlWithParams((String) params[0], (List<NameValuePair>) params [1]);
+            Log.d("wifi", result.toString());
+            return result;
+        }
+    }
+
 
     private class FetchLocationTaskWithParams extends AsyncTask<Object, Void, JSONObject> {
         @Override
@@ -228,7 +252,6 @@ public class WebUtils extends FragmentActivity {
 
     }
 
-
     private synchronized JSONObject downloadUrl(String urlParam) throws IOException {
         InputStream is = null;
         // Only display the first 500 characters of the retrieved
@@ -268,7 +291,7 @@ public class WebUtils extends FragmentActivity {
         return null;
     }
 
-    private synchronized JSONObject downloadURlWithParams(String urlParam, List<NameValuePair> params) {
+    private static synchronized JSONObject downloadURlWithParams(String urlParam, List<NameValuePair> params) {
         InputStream is = null;
         try {
 

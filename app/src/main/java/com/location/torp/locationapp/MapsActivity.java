@@ -112,6 +112,7 @@ public class MapsActivity extends FragmentActivity implements
 
             case R.id.action_wifi:
                 Intent wifiIntent = new Intent(this, WifiActivity.class);
+                wifiIntent.putExtra("deviceID", getDeviceID());
                 startActivity(wifiIntent);
 
                 return true;
