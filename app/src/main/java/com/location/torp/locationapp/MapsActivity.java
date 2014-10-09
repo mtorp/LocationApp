@@ -4,13 +4,17 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.location.Location;
 import android.content.Context;
 import android.location.LocationManager;
 import android.location.LocationListener;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings.Secure;
@@ -67,6 +71,9 @@ public class MapsActivity extends FragmentActivity implements
     private WebUtils webUtils;
     private String name;
 
+    //Wifi stuff
+    private WifiManager wifiManager;
+    private WifiReceiver wifiReceiver;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -80,6 +87,11 @@ public class MapsActivity extends FragmentActivity implements
         setUpMapIfNeeded();
         webUtils = new WebUtils(this, mMap);
         startFetchingHandler();
+
+        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifiReceiver = new WifiReceiver();
+        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        wifiManager.startScan();
     }
 
     @Override
@@ -93,19 +105,17 @@ public class MapsActivity extends FragmentActivity implements
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_speech:
-                Toast.makeText(getApplicationContext(), "Opening BluetoothActivity", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, BluetoothActivity.class);
                 startActivityForResult(intent, 1);
                 return true;
 
             case R.id.action_wifi:
-                Toast.makeText(getApplicationContext(), "Opening WifiActivity", Toast.LENGTH_SHORT).show();
                 Intent wifiIntent = new Intent(this, WifiActivity.class);
                 startActivity(wifiIntent);
+
                 return true;
 
             case R.id.action_notifications:
-                Toast.makeText(getApplicationContext(), "Opening NotificationActivity", Toast.LENGTH_SHORT).show();
                 Intent notificationIntent = new Intent(this, WifiActivity.class);
                 startActivity(notificationIntent);
                 return true;
@@ -115,17 +125,22 @@ public class MapsActivity extends FragmentActivity implements
         }
     }
 
+    protected void onPause() {
+        unregisterReceiver(wifiReceiver);
+        super.onResume();
+    }
+
     @Override
     protected void onResume() {
-        super.onResume();
+        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         setUpMapIfNeeded();
+        super.onResume();
     }
 
     public void startGPS() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000L, 10.0f, this);
     }
-
 
 
     /**
@@ -168,14 +183,12 @@ public class MapsActivity extends FragmentActivity implements
      * Handle results returned to the FragmentActivity
      * by Google Play services
      */
+
     @Override
-    protected void onActivityResult(
-            int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Decide what to do based on the original request code
         switch (requestCode) {
-
             case CONNECTION_FAILURE_RESOLUTION_REQUEST:
-
             /*
              * If the result code is Activity.RESULT_OK, try
              * to connect again
@@ -185,7 +198,6 @@ public class MapsActivity extends FragmentActivity implements
                     /*
                      * Try the request again
                      */
-
                         break;
                 }
             case 1:
@@ -197,10 +209,7 @@ public class MapsActivity extends FragmentActivity implements
                         webUtils.startFetchLocationTaskWithParams(UP_URL_LIKE, params);
                     }
                 }
-
         }
-
-
     }
 
     private boolean servicesConnected() {
@@ -249,14 +258,12 @@ public class MapsActivity extends FragmentActivity implements
     public void onConnected(Bundle dataBundle) {
         // Display the connection status
         setUpMap();
-
     }
 
     @Override
     public void onDisconnected() {
         // Display the connection status
-        Toast.makeText(this, "Disconnected. Please re-connect.",
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Disconnected. Please re-connect.", Toast.LENGTH_SHORT).show();
     }
 
     /*
@@ -451,24 +458,39 @@ public class MapsActivity extends FragmentActivity implements
      */
 
     public void startFetchingHandler() {
-            final Handler handler = new Handler();
-            Timer timer = new Timer();
-            TimerTask doAsynchronousTask = new TimerTask() {
-                @Override
-                public void run() {
-                    handler.post(new Runnable() {
-                        public void run() {
-                            try {
-                                webUtils.startFetchLocationTask(DOWN_URL);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            webUtils.startFetchLocationTask(DOWN_URL);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    });
-                }
-            };
-            timer.schedule(doAsynchronousTask, 0, 60000); //execute in every 50000 ms
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 60000); //execute in every 50000 ms
+    }
+
+    class WifiReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            List<ScanResult> scanResults = wifiManager.getScanResults();
+
+            for (int i = 0; i < scanResults.size(); i++) {
+                Log.i("wifi", "Found wifi: SSID = " + scanResults.get(i).SSID + " BSSID = " + scanResults.get(i).BSSID);
+
+            }
+
+
+
+            Toast.makeText(getApplicationContext(), "Found wifi named ", Toast.LENGTH_SHORT).show();
         }
-
-
+    }
 }
