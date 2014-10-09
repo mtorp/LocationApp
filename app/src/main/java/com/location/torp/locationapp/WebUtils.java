@@ -70,14 +70,21 @@ public class WebUtils extends FragmentActivity {
     }
 
     public static JSONObject startFetchParamsTask(String url, List<NameValuePair> params) {
+        JSONObject jsonObject = null;
         try {
-            return new FetchParamsTask().execute(url, params).get();
+            jsonObject = new FetchParamsTask().execute(url, params).get();
+
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        return null;
+        if (jsonObject == null) {
+            Log.d("wifi", "JSONObject is null after download");
+        }
+
+        return jsonObject;
     }
 
 
@@ -153,13 +160,11 @@ public class WebUtils extends FragmentActivity {
 
 
     private static class FetchParamsTask extends AsyncTask<Object, Void, JSONObject>{
-
-
         @Override
         protected JSONObject doInBackground(Object... params) {
-            JSONObject result = downloadURlWithParams((String) params[0], (List<NameValuePair>) params [1]);
-            Log.d("wifi", result.toString());
-            return result;
+            Log.d("wifi", params[0].toString());
+            Log.d("wifi", params[1].toString());
+            return downloadURlWithParams((String) params[0], (List<NameValuePair>) params [1]);
         }
     }
 
@@ -302,7 +307,6 @@ public class WebUtils extends FragmentActivity {
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.connect();
-
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
