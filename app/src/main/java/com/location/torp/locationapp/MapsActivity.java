@@ -493,26 +493,27 @@ public class MapsActivity extends FragmentActivity implements
                 values.add(new BasicNameValuePair("SSID", scanResults.get(i).SSID));
                 values.add(new BasicNameValuePair("BSSID", scanResults.get(i).BSSID));
 
-                Log.i("wifi", "Found wifi: SSID = " + scanResults.get(i).SSID + " BSSID = " + scanResults.get(i).BSSID);
+                //Log.i("wifi", "Found wifi: SSID = " + scanResults.get(i).SSID + " BSSID = " + scanResults.get(i).BSSID);
 
                 WebUtils.startPostParamsTask(WIFI_UP, values);
 
-                //checkForNotification(scanResults.get(i).BSSID);
-
+                checkForNotification(scanResults.get(i).BSSID);
             }
-
-
-
         }
     }
 
     public void checkForNotification(String BSSID) {
+ //       Log.d("wifi", "Checking for match with " + BSSID);
 
-        Log.d("wifi", "Checking if wifi found is notification");
+        if(notifications == null) {
+            notifications = new NotificationList(deviceID);
+        }
+
+        //Log.d("wifi", "Notification" + notifications.getNotifications().size());
 
         for(Notification n: notifications.getNotifications()) {
-            Log.i("note", n.getBSSID());
-            if(n.getBSSID().equals(BSSID)) {
+            //Log.i("wifi", "Checking for match between " + n.getBSSID() + " and " + BSSID);
+            if(BSSID.equals(n.getBSSID())) {
                 Log.d("wifi", "Found a match");
             }
         }
