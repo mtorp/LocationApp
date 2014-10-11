@@ -119,7 +119,7 @@ public class WebUtils extends FragmentActivity {
                         mMap.addMarker(m);
 
                     }
-                    Toast.makeText(mapContext, "Locations added", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(mapContext, "Locations added", Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
                     e.printStackTrace();

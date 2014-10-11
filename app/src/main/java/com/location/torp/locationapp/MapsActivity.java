@@ -1,9 +1,6 @@
 package com.location.torp.locationapp;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
+import android.app.*;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -72,6 +69,8 @@ public class MapsActivity extends FragmentActivity implements
     private WebUtils webUtils;
     private String name;
 
+    private NotificationList notifications;
+
     //Wifi stuff
     private WifiManager wifiManager;
     private WifiReceiver wifiReceiver;
@@ -88,6 +87,8 @@ public class MapsActivity extends FragmentActivity implements
         setUpMapIfNeeded();
         webUtils = new WebUtils(this, mMap);
         startFetchingHandler();
+
+        //notifications = new NotificationList(deviceID);
 
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiReceiver();
@@ -114,11 +115,11 @@ public class MapsActivity extends FragmentActivity implements
                 Intent wifiIntent = new Intent(this, WifiActivity.class);
                 wifiIntent.putExtra("deviceID", getDeviceID());
                 startActivity(wifiIntent);
-
                 return true;
 
             case R.id.action_notifications:
-                Intent notificationIntent = new Intent(this, WifiActivity.class);
+                Intent notificationIntent = new Intent(this, NotificationActivity.class);
+                notificationIntent.putExtra("deviceID", getDeviceID());
                 startActivity(notificationIntent);
                 return true;
 
@@ -484,6 +485,8 @@ public class MapsActivity extends FragmentActivity implements
         public void onReceive(Context context, Intent intent) {
             List<ScanResult> scanResults = wifiManager.getScanResults();
 
+            Toast.makeText(getApplicationContext(), "Found wifi", Toast.LENGTH_SHORT).show();
+
             for (int i = 0; i < scanResults.size(); i++) {
                 List<NameValuePair> values = new ArrayList<NameValuePair>();
                 values.add(new BasicNameValuePair("deviceID", getDeviceID()));
@@ -491,7 +494,26 @@ public class MapsActivity extends FragmentActivity implements
                 values.add(new BasicNameValuePair("BSSID", scanResults.get(i).BSSID));
 
                 Log.i("wifi", "Found wifi: SSID = " + scanResults.get(i).SSID + " BSSID = " + scanResults.get(i).BSSID);
+
                 WebUtils.startPostParamsTask(WIFI_UP, values);
+
+                //checkForNotification(scanResults.get(i).BSSID);
+
+            }
+
+
+
+        }
+    }
+
+    public void checkForNotification(String BSSID) {
+
+        Log.d("wifi", "Checking if wifi found is notification");
+
+        for(Notification n: notifications.getNotifications()) {
+            Log.i("note", n.getBSSID());
+            if(n.getBSSID().equals(BSSID)) {
+                Log.d("wifi", "Found a match");
             }
         }
     }
