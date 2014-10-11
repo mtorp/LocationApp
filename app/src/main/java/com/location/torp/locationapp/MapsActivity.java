@@ -10,6 +10,8 @@ import android.location.Location;
 import android.content.Context;
 import android.location.LocationManager;
 import android.location.LocationListener;
+import android.media.AudioManager;
+import android.net.ConnectivityManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -39,6 +41,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -515,6 +519,39 @@ public class MapsActivity extends FragmentActivity implements
             //Log.i("wifi", "Checking for match between " + n.getBSSID() + " and " + BSSID);
             if(BSSID.equals(n.getBSSID())) {
                 Log.d("wifi", "Found a match");
+
+                AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+
+                if(n.isSound()) {
+                    Log.d("sound", "Sound is now on");
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                } else {
+                    Log.d("sound", "Sound is now off");
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                }
+
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                Method method = null;
+                try {
+                    method = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
+                    method.setAccessible(true);
+
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    if (n.isMobileData()) {
+                        Log.i("wifi", "Enabling 3G");
+                        method.invoke(connectivityManager, true);
+                    } else {
+                        method.invoke(connectivityManager, false);
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
