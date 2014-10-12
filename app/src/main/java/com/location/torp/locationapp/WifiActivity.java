@@ -58,6 +58,8 @@ public class WifiActivity extends Activity {
 
         listView = (ListView) findViewById(R.id.wifiListView);
 
+        getActionBar().setTitle("Wifi networks");
+
         wifis = new ArrayList<Wifi>();
         arrayAdapter = new WifiAdapter(this, wifis);
         listView.setAdapter(arrayAdapter);
@@ -70,7 +72,6 @@ public class WifiActivity extends Activity {
             public void onItemClick(AdapterView<?> adapter, View v, int position, long arg3)
             {
                 Wifi wifi = (Wifi) adapter.getItemAtPosition(position);
-                Toast.makeText(getApplicationContext(), "Clicked: " + wifi.getSSID(), Toast.LENGTH_SHORT).show();
                 makeNewNotification(wifi);
             }
         });

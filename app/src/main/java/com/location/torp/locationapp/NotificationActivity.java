@@ -44,6 +44,8 @@ public class NotificationActivity extends Activity {
         deviceID = extras.getString("deviceID");
         Log.d("note", deviceID);
 
+        getActionBar().setTitle("Notifications");
+
         notifications = new NotificationList(deviceID);
 
         listView = (ListView) findViewById(R.id.notificationListView);
@@ -102,7 +104,7 @@ public class NotificationActivity extends Activity {
 
             deleteNotification(notifications.getNotifications().get(index));
 
-            Toast.makeText(getApplicationContext(), "Notifications deleted!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Notification deleted!", Toast.LENGTH_SHORT).show();
 
         }
 

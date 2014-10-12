@@ -26,6 +26,7 @@ public class BluetoothActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
+        getActionBar().setTitle("Bluetooth devices");
         startBlueTooth();
     }
 
@@ -56,7 +57,6 @@ public class BluetoothActivity extends Activity {
             public void onItemClick(AdapterView<?> adapter, View v, int position, long arg3)
             {
                 String value = (String)adapter.getItemAtPosition(position);
-                Toast.makeText(getApplicationContext(), "Clicked: " + value, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent();
                 intent.putExtra("name", value);
                 setResult(Activity.RESULT_OK, intent);

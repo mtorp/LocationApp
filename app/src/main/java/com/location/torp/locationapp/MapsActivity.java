@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings.Secure;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -111,8 +112,10 @@ public class MapsActivity extends FragmentActivity implements
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_speech:
+
                 Intent intent = new Intent(this, BluetoothActivity.class);
                 startActivityForResult(intent, 1);
+
                 return true;
 
             case R.id.action_wifi:
@@ -489,8 +492,6 @@ public class MapsActivity extends FragmentActivity implements
         public void onReceive(Context context, Intent intent) {
             List<ScanResult> scanResults = wifiManager.getScanResults();
 
-            Toast.makeText(getApplicationContext(), "Found wifi", Toast.LENGTH_SHORT).show();
-
             for (int i = 0; i < scanResults.size(); i++) {
                 List<NameValuePair> values = new ArrayList<NameValuePair>();
                 values.add(new BasicNameValuePair("deviceID", getDeviceID()));
@@ -552,7 +553,44 @@ public class MapsActivity extends FragmentActivity implements
                 } catch (InvocationTargetException e) {
                     e.printStackTrace();
                 }
+
+                showNotification(n);
+
+
             }
         }
+    }
+
+    private void showNotification(Notification note) {
+
+        Log.d("wifi", "notesdaf");
+
+        Toast.makeText(getApplicationContext(), note.getMessage(), Toast.LENGTH_LONG).show();
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+
+        notificationBuilder.setContentText("Found network " + note.getSSID());
+        notificationBuilder.setContentTitle(note.getMessage());
+        notificationBuilder.setSmallIcon(R.drawable.ic_launcher);
+        notificationBuilder.setTicker("New message");
+
+        Intent resultIntent = new Intent(this, this.getClass());
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(this.getClass());
+
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        notificationBuilder.setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        android.app.Notification notification = notificationBuilder.build();
+
+        notification.flags = android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.FLAG_AUTO_CANCEL;
+
+        notificationManager.notify(100, notification);
+
+
     }
 }
